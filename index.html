@@ -323,7 +323,7 @@ async function fetchFeed(){
   for(let i=0;i<allFetches.length;i+=BATCH){
     const batch=allFetches.slice(i,i+BATCH);
     const results=await Promise.all(batch.map(({url})=>fetchFeedURL(url)));
-    batch.forEach(({key},idx=>{
+    batch.forEach(({key},idx)=>{
       fetchedMap[key]=fetchedMap[key].concat(results[idx]);
     });
     setProgress(Math.round(5+90*(Math.min(i+BATCH,allFetches.length)/allFetches.length)));
