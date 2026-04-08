@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Briefing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a18;
+    --ink2: #4a4a46;
+    --ink3: #8a8a84;
+    --paper: #f7f5f0;
+    --paper2: #eceae3;
+    --paper3: #e2e0d8;
+    --rule: #d4d2c8;
+    --accent: #c0392b;
+    --accent2: #e8d5b0;
+    --blue: #1a3a5c;
+    --blue-bg: #edf2f7;
+    --green-bg: #edf7ed;
+    --green: #1a4a1a;
+    --amber-bg: #fdf6e3;
+    --amber: #5a3e00;
+    --purple-bg: #f0edf7;
+    --purple: #3a1a5c;
+    --teal-bg: #edf7f5;
+    --teal: #0a3a32;
+    --red-bg: #fdecea;
+    --red: #5c1a1a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+  }
+
+  /* Masthead */
+  .masthead {
+    border-bottom: 3px double var(--rule);
+    padding: 1.5rem 0 1rem;
+    text-align: center;
+    background: var(--paper);
+  }
+  .masthead-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 0.4rem;
+  }
+  .masthead h1 {
+    font-family: 'Libre Baskerville', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .masthead-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 0.75rem;
+    font-size: 11px;
+    color: var(--ink3);
+    letter-spacing: 0.05em;
+    font-weight: 300;
+  }
+  .masthead-meta span { display: flex; align-items: center; gap: 5px; }
+  .masthead-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--rule); }
+
+  /* Layout */
+  .container { max-width: 760px; margin: 0 auto; padding: 0 1.25rem; }
+
+  /* Controls */
+  .controls {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .controls-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    white-space: nowrap;
+  }
+  .chip {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    padding: 3px 10px;
+    border-radius: 2px;
+    border: 1px solid var(--rule);
+    background: transparent;
+    color: var(--ink3);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    letter-spacing: 0.01em;
+  }
+  .chip.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .chip.restricted.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .chip.restricted { border-color: var(--blue); color: var(--blue); }
+
+  /* Refresh button */
+  .refresh-bar {
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .refresh-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .refresh-btn:hover { opacity: 0.88; }
+  .refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .source-note {
+    font-size: 11px;
+    color: var(--ink3);
+    font-style: italic;
+    font-family: 'Libre Baskerville', serif;
+  }
+
+  /* Feed */
+  .feed { padding: 0.5rem 0 3rem; }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 1.25rem 0 0.5rem;
+    border-top: 2px solid var(--ink);
+    margin-top: 1.5rem;
+  }
+  .section-head:first-child { margin-top: 0.5rem; border-top-width: 3px; }
+  .section-name {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+  }
+  .section-badge {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 2px;
+    background: var(--blue-bg);
+    color: var(--blue);
+  }
+  .section-sources {
+    font-size: 10px;
+    color: var(--ink3);
+    margin-left: auto;
+    font-style: italic;
+    font-family: 'Libre Baskerville', serif;
+  }
+
+  .article {
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0 1rem;
+    align-items: start;
+  }
+  .article:last-child { border-bottom: none; }
+  .article-left { min-width: 0; }
+  .article-source {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .article-source .sep { color: var(--rule); }
+  .article-title {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--ink);
+    text-decoration: none;
+    display: block;
+    margin-bottom: 5px;
+    transition: color 0.12s;
+  }
+  .article-title:hover { color: var(--accent); }
+  .article-summary {
+    font-size: 12.5px;
+    color: var(--ink2);
+    line-height: 1.55;
+    font-family: 'Libre Baskerville', serif;
+    font-weight: 400;
+  }
+  .article-time {
+    font-size: 10px;
+    color: var(--ink3);
+    white-space: nowrap;
+    padding-top: 2px;
+    font-weight: 300;
+  }
+
+  /* Topic color tags */
+  .tag { font-size: 9px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 1px 6px; border-radius: 2px; }
+  .tag-president { background: var(--blue-bg); color: var(--blue); }
+  .tag-iran { background: var(--red-bg); color: var(--red); }
+  .tag-economy { background: var(--green-bg); color: var(--green); }
+  .tag-layoffs { background: var(--amber-bg); color: var(--amber); }
+  .tag-inflation { background: var(--amber-bg); color: var(--amber); }
+  .tag-ai { background: var(--purple-bg); color: var(--purple); }
+  .tag-local { background: var(--teal-bg); color: var(--teal); }
+
+  /* States */
+  .state {
+    padding: 3rem 0;
+    text-align: center;
+    color: var(--ink3);
+    font-family: 'Libre Baskerville', serif;
+    font-style: italic;
+    font-size: 14px;
+  }
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid var(--rule);
+    border-top-color: var(--ink2);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-note {
+    background: var(--red-bg);
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--red);
+    margin: 1rem 0;
+    border-radius: 0 2px 2px 0;
+    display: none;
+  }
+
+  /* Footer */
+  footer {
+    border-top: 3px double var(--rule);
+    padding: 1rem 0;
+    text-align: center;
+    font-size: 10px;
+    color: var(--ink3);
+    letter-spacing: 0.08em;
+    font-weight: 300;
+  }
+
+  @media (max-width: 540px) {
+    .masthead h1 { font-size: 2rem; }
+    .section-sources { display: none; }
+    .article { grid-template-columns: 1fr; }
+    .article-time { margin-top: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="container">
+    <div class="masthead-eyebrow">Personal news briefing</div>
+    <h1>The Daily Brief</h1>
+    <div class="masthead-meta">
+      <span id="date-display">—</span>
+      <span class="dot"></span>
+      <span id="time-display">—</span>
+      <span class="dot"></span>
+      <span>Upstate SC &amp; WNC</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="controls">
+    <span class="controls-label">Topics</span>
+    <div class="chip restricted on" data-topic="president" onclick="toggleTopic(this)">US President &#x2713;</div>
+    <div class="chip on" data-topic="iran" onclick="toggleTopic(this)">US–Iran</div>
+    <div class="chip on" data-topic="economy" onclick="toggleTopic(this)">Economy</div>
+    <div class="chip on" data-topic="layoffs" onclick="toggleTopic(this)">Layoffs</div>
+    <div class="chip on" data-topic="inflation" onclick="toggleTopic(this)">Inflation</div>
+    <div class="chip on" data-topic="ai" onclick="toggleTopic(this)">AI</div>
+    <div class="chip on" data-topic="local" onclick="toggleTopic(this)">Local</div>
+  </div>
+
+  <div class="refresh-bar">
+    <button class="refresh-btn" id="fetch-btn" onclick="fetchFeed()">
+      <span id="fetch-label">Load briefing</span>
+    </button>
+    <span class="source-note" id="source-note">Live RSS feeds — real headlines</span>
+  </div>
+
+  <div class="error-note" id="error-note"></div>
+
+  <div class="feed" id="feed">
+    <div class="state">Select topics above and press <em>Load briefing</em> to begin.</div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    The Daily Brief &mdash; personal edition &mdash; sources listed per section
+  </div>
+</footer>
+
+<script>
+// ─── Date / time display ───────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById('date-display').textContent =
+    now.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
+  document.getElementById('time-display').textContent =
+    now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+}
+updateClock();
+setInterval(updateClock, 30000);
+
+// ─── RSS proxy ─────────────────────────────────────────────────────────────
+const PROXY = 'https://api.rss2json.com/v1/api.json?rss_url=';
+
+// ─── Topic definitions ─────────────────────────────────────────────────────
+const TOPICS = {
+  president: {
+    label: 'US President & Administration',
+    restricted: true,
+    tagClass: 'tag-president',
+    sources: [
+      { name: 'AP News', url: 'https://feeds.apnews.com/rss/apf-politics' },
+      { name: 'Reuters',  url: 'https://feeds.reuters.com/reuters/politicsNews' },
+      { name: 'Axios',    url: 'https://api.axios.com/feed/politics' },
+      { name: 'BBC',      url: 'https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml' },
+      { name: 'NPR',      url: 'https://feeds.npr.org/1014/rss.xml' },
+      { name: 'Politico', url: 'https://www.politico.com/rss/politicopicks.xml' },
+    ],
+    keywords: ['president','trump','white house','administration','executive','cabinet','congress','senate','house','federal','oval office','signed','vetoed','policy'],
+    badgeText: 'Verified sources only'
+  },
+  iran: {
+    label: 'US–Iran Conflict',
+    restricted: false,
+    tagClass: 'tag-iran',
+    sources: [
+      { name: 'Reuters',      url: 'https://feeds.reuters.com/reuters/worldNews' },
+      { name: 'AP News',      url: 'https://feeds.apnews.com/rss/apf-worldnews' },
+      { name: 'BBC',          url: 'https://feeds.bbci.co.uk/news/world/middle_east/rss.xml' },
+      { name: 'Al Jazeera',   url: 'https://www.aljazeera.com/xml/rss/all.xml' },
+      { name: 'Defense One',  url: 'https://www.defenseone.com/rss/all/' },
+    ],
+    keywords: ['iran','hormuz','gulf','nuclear','sanctions','irgc','proxy','hezbollah','houthi','strait','persian gulf','oil price','crude','tanker','naval','missile','military','diplomat','negotiat','saudi','israel','uae','russia','china','un security council','arms','weapons transfer'],
+  },
+  economy: {
+    label: 'Economy',
+    restricted: false,
+    tagClass: 'tag-economy',
+    sources: [
+      { name: 'Reuters',   url: 'https://feeds.reuters.com/reuters/businessNews' },
+      { name: 'AP News',   url: 'https://feeds.apnews.com/rss/apf-business' },
+      { name: 'Bloomberg', url: 'https://feeds.bloomberg.com/markets/news.rss' },
+      { name: 'CNBC',      url: 'https://www.cnbc.com/id/10001147/device/rss/rss.html' },
+      { name: 'WSJ',       url: 'https://feeds.a.dj.com/rss/RSSMarketsMain.xml' },
+    ],
+    keywords: ['economy','gdp','recession','fed','federal reserve','interest rate','jobs','employment','unemployment','market','stock','trade','tariff','deficit','debt','fiscal','earnings','revenue','growth','sector','vc','startup','venture','funding','ipo'],
+  },
+  layoffs: {
+    label: 'Layoffs',
+    restricted: false,
+    tagClass: 'tag-layoffs',
+    sources: [
+      { name: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
+      { name: 'The Verge',  url: 'https://www.theverge.com/rss/index.xml' },
+      { name: 'Reuters',    url: 'https://feeds.reuters.com/reuters/businessNews' },
+      { name: 'Bloomberg',  url: 'https://feeds.bloomberg.com/technology/news.rss' },
+    ],
+    keywords: ['layoff','laid off','job cut','workforce reduction','reductions in force','rif ','redundan','downsiz','restructur','headcount','workers cut','employees cut','position eliminat'],
+  },
+  inflation: {
+    label: 'Inflation',
+    restricted: false,
+    tagClass: 'tag-inflation',
+    sources: [
+      { name: 'Reuters',   url: 'https://feeds.reuters.com/reuters/businessNews' },
+      { name: 'AP News',   url: 'https://feeds.apnews.com/rss/apf-business' },
+      { name: 'CNBC',      url: 'https://www.cnbc.com/id/10001147/device/rss/rss.html' },
+      { name: 'WSJ',       url: 'https://feeds.a.dj.com/rss/RSSMarketsMain.xml' },
+    ],
+    keywords: ['inflation','cpi','ppi','consumer price','price index','cost of living','grocery','food price','energy price','gas price','housing cost','rent','fed rate','interest rate','tariff','price'],
+  },
+  ai: {
+    label: 'AI News',
+    restricted: false,
+    tagClass: 'tag-ai',
+    sources: [
+      { name: 'TechCrunch',    url: 'https://techcrunch.com/feed/' },
+      { name: 'The Verge',     url: 'https://www.theverge.com/rss/index.xml' },
+      { name: 'Ars Technica',  url: 'https://feeds.arstechnica.com/arstechnica/technology-lab' },
+      { name: 'Reuters Tech',  url: 'https://feeds.reuters.com/reuters/technologyNews' },
+      { name: 'MIT Tech Rev.', url: 'https://www.technologyreview.com/feed/' },
+    ],
+    keywords: ['artificial intelligence','ai model','machine learning','llm','gpt','claude','gemini','openai','anthropic','deepmind','neural','chatbot','generative','autonomous','ai regulation','ai safety','ai chip','nvidia','ai agent','ai tool','large language'],
+  },
+  local: {
+    label: 'Local — Upstate SC & WNC',
+    restricted: false,
+    tagClass: 'tag-local',
+    sources: [
+      { name: 'WSPA 7News',          url: 'https://www.wspa.com/feed/' },
+      { name: 'FOX Carolina',        url: 'https://www.foxcarolina.com/feed/' },
+      { name: 'WLOS News 13',        url: 'https://wlos.com/feed/' },
+      { name: 'Post & Courier GVL',  url: 'https://www.postandcourier.com/greenville/search/?f=rss&t=article&c=news&l=50&s=start_time&sd=desc' },
+      { name: 'Greenville Journal',  url: 'https://greenvillejournal.com/feed/' },
+      { name: 'WYFF4',               url: 'https://www.wyff4.com/topstories-rss' },
+    ],
+    keywords: null,
+  },
+};
+
+// ─── State ─────────────────────────────────────────────────────────────────
+let activeTopics = new Set(Object.keys(TOPICS));
+let loading = false;
+
+function toggleTopic(el) {
+  const t = el.dataset.topic;
+  if (activeTopics.has(t)) {
+    if (activeTopics.size === 1) return;
+    activeTopics.delete(t);
+    el.classList.remove('on');
+    el.textContent = TOPICS[t].label.length > 18 ? el.textContent.replace(' ✓','') : el.textContent;
+  } else {
+    activeTopics.add(t);
+    el.classList.add('on');
+  }
+}
+
+// ─── RSS fetch helpers ──────────────────────────────────────────────────────
+function stripHtml(str) {
+  if (!str) return '';
+  return str.replace(/<[^>]*>/g, '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#039;/g,"'").trim();
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    const diff = (Date.now() - d) / 1000;
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return Math.round(diff/60) + 'm ago';
+    if (diff < 86400) return Math.round(diff/3600) + 'h ago';
+    return Math.round(diff/86400) + 'd ago';
+  } catch(e) { return ''; }
+}
+
+function matchesKeywords(item, keywords) {
+  if (!keywords) return true;
+  const text = ((item.title||'') + ' ' + (item.description||'') + ' ' + (item.content||'')).toLowerCase();
+  return keywords.some(k => text.includes(k.toLowerCase()));
+}
+
+async function fetchRSS(source) {
+  try {
+    const url = PROXY + encodeURIComponent(source.url) + '&count=20';
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (!data.items) return [];
+    return data.items.map(item => ({ ...item, _source: source.name }));
+  } catch(e) {
+    return [];
+  }
+}
+
+// ─── Main fetch ─────────────────────────────────────────────────────────────
+async function fetchFeed() {
+  if (loading) return;
+  loading = true;
+  const btn = document.getElementById('fetch-btn');
+  const label = document.getElementById('fetch-label');
+  const errNote = document.getElementById('error-note');
+  btn.disabled = true;
+  errNote.style.display = 'none';
+  label.innerHTML = '<span class="spinner"></span>Fetching...';
+  document.getElementById('feed').innerHTML = '<div class="state">Gathering headlines from all sources&hellip;</div>';
+
+  const selected = Array.from(activeTopics);
+  let allSections = [];
+  let anyFailed = false;
+
+  for (const topicKey of selected) {
+    const topic = TOPICS[topicKey];
+    let allItems = [];
+
+    const results = await Promise.all(topic.sources.map(s => fetchRSS(s)));
+    results.forEach(items => { allItems = allItems.concat(items); });
+
+    const filtered = allItems
+      .filter(item => matchesKeywords(item, topic.keywords))
+      .sort((a,b) => new Date(b.pubDate||0) - new Date(a.pubDate||0));
+
+    const seen = new Set();
+    const deduped = [];
+    for (const item of filtered) {
+      const key = (item.title||'').substring(0,60).toLowerCase();
+      if (!seen.has(key)) { seen.add(key); deduped.push(item); }
+      if (deduped.length >= 5) break;
+    }
+
+    if (deduped.length === 0) anyFailed = true;
+
+    allSections.push({ topicKey, topic, items: deduped });
+  }
+
+  renderFeed(allSections);
+
+  if (anyFailed) {
+    errNote.textContent = 'Some feeds could not be loaded — CORS proxy may be rate-limited. Try again in a moment.';
+    errNote.style.display = 'block';
+  }
+
+  document.getElementById('source-note').textContent =
+    'Updated ' + new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+
+  loading = false;
+  btn.disabled = false;
+  label.textContent = 'Refresh';
+}
+
+// ─── Render ─────────────────────────────────────────────────────────────────
+function renderFeed(sections) {
+  const feed = document.getElementById('feed');
+  if (!sections.length) { feed.innerHTML = '<div class="state">No topics selected.</div>'; return; }
+
+  let html = '';
+
+  sections.forEach(({ topicKey, topic, items }) => {
+    html += `<div class="section-head">
+      <span class="section-name">${topic.label}</span>
+      ${topic.restricted ? `<span class="section-badge">${topic.badgeText}</span>` : ''}
+      <span class="section-sources">${topic.sources.map(s=>s.name).join(' &middot; ')}</span>
+    </div>`;
+
+    if (!items.length) {
+      html += `<div class="state" style="padding:1rem 0;text-align:left">No recent headlines found — feeds may be temporarily unavailable.</div>`;
+    } else {
+      items.forEach(item => {
+        const title = stripHtml(item.title || 'Untitled');
+        const summary = stripHtml(item.description || item.content || '').substring(0, 160).trim();
+        const summaryDisplay = summary ? (summary + (summary.length === 160 ? '…' : '')) : '';
+        const link = item.link || item.url || '#';
+        const ago = timeAgo(item.pubDate);
+        const src = item._source || '';
+
+        html += `<div class="article">
+          <div class="article-left">
+            <div class="article-source">
+              <span>${src}</span>
+              <span class="sep">&middot;</span>
+              <span class="tag ${topic.tagClass}">${topic.label}</span>
+            </div>
+            <a class="article-title" href="${link}" target="_blank" rel="noopener">${title}</a>
+            ${summaryDisplay ? `<p class="article-summary">${summaryDisplay}</p>` : ''}
+          </div>
+          <div class="article-time">${ago}</div>
+        </div>`;
+      });
+    }
+  });
+
+  feed.innerHTML = html;
+}
+</script>
+</body>
+</html>
